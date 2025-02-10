@@ -2,13 +2,24 @@ package generic
 
 import (
 	"github.com/adverax/containers/lists"
-	"github.com/adverax/core"
 	"sort"
 )
 
-type Set[T core.Ordered] map[T]struct{}
+type FLOAT interface {
+	~float64 | ~float32
+}
 
-func NewSet[T core.Ordered](values ...T) Set[T] {
+type INTEGER interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64
+}
+
+type ORDERED interface {
+	FLOAT | ~string
+}
+
+type Set[T ORDERED] map[T]struct{}
+
+func NewSet[T ORDERED](values ...T) Set[T] {
 	set := make(map[T]struct{})
 	for _, value := range values {
 		set[value] = struct{}{}
@@ -48,7 +59,7 @@ func (set Set[T]) Values() lists.List[T] {
 	return values
 }
 
-func Union[T core.Ordered](lists ...[]T) lists.List[T] {
+func Union[T ORDERED](lists ...[]T) lists.List[T] {
 	set := make(Set[T])
 	for _, list := range lists {
 		set.Append(list...)

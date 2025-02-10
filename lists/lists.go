@@ -1,13 +1,24 @@
 package lists
 
 import (
-	"github.com/adverax/core"
 	"sort"
 )
 
 // This is package for process sorted lists
 
-type List[T core.Ordered] []T
+type FLOAT interface {
+	~float64 | ~float32
+}
+
+type INTEGER interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64
+}
+
+type ORDERED interface {
+	FLOAT | ~string
+}
+
+type List[T ORDERED] []T
 
 func (that List[T]) Len() int {
 	return len(that)
