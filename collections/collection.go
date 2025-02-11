@@ -11,6 +11,7 @@ type Comparator[T any] interface {
 	Greater(a, b T) bool
 }
 
+// Collection - sorted collection of items
 type Collection[T any] struct {
 	items      []T
 	comparator Comparator[T]
@@ -39,20 +40,23 @@ func (that *Collection[T]) Swap(i, j int) {
 	that.items[i], that.items[j] = that.items[j], that.items[i]
 }
 
+// Reset - clear collection
 func (that *Collection[T]) Reset() {
 	that.items = nil
 }
 
+// Clone returns a copy of the collection
 func (that *Collection[T]) Clone() *Collection[T] {
 	res := &Collection[T]{
 		items:      make([]T, len(that.items)),
 		comparator: that.comparator,
+		unique:     that.unique,
 	}
 	copy(res.items, that.items)
 	return res
 }
 
-// Contains - проверка на наличие элемента в списке
+// Contains checks if item is in collection
 func (that *Collection[T]) Contains(item T) bool {
 	l := len(that.items)
 	if l == 0 {
@@ -67,7 +71,7 @@ func (that *Collection[T]) Contains(item T) bool {
 	return that.comparator.Equal(that.items[i], item)
 }
 
-// Include - добавление элемента в список
+// Include allows to append item to collection
 func (that *Collection[T]) Include(item T) bool {
 	l := len(that.items)
 	if l == 0 {
@@ -93,7 +97,7 @@ func (that *Collection[T]) Include(item T) bool {
 	return true
 }
 
-// Exclude - удаление элемента из списка
+// Exclude allows to delete item from collection
 func (that *Collection[T]) Exclude(item T) bool {
 	l := len(that.items)
 	if l == 0 {
@@ -118,7 +122,7 @@ func (that *Collection[T]) Exclude(item T) bool {
 	return true
 }
 
-// Add - объединение двух списков
+// Add - join two collections
 func (that *Collection[T]) Add(bs *Collection[T], unique bool) *Collection[T] {
 	la := len(that.items)
 	lb := len(bs.items)
@@ -164,7 +168,7 @@ func (that *Collection[T]) Add(bs *Collection[T], unique bool) *Collection[T] {
 	return c
 }
 
-// Sub - вычитание одного списка из другого
+// Sub - subtract one collection from another
 func (that *Collection[T]) Sub(bs *Collection[T]) *Collection[T] {
 	la := len(that.items)
 	lb := len(bs.items)
@@ -201,11 +205,17 @@ func (that *Collection[T]) Sub(bs *Collection[T]) *Collection[T] {
 	return c
 }
 
+// IndexOf - returns founded index of item
 func (that *Collection[T]) IndexOf(item T) int {
+	if len(that.items) == 0 {
+		return -1
+	}
+
 	i := that.search(item)
 	if that.comparator.Equal(that.items[i], item) {
 		return i
 	}
+
 	return -1
 }
 
@@ -218,10 +228,12 @@ func (that *Collection[T]) Items() []T {
 	return that.items
 }
 
+// Push is alias for include
 func (that *Collection[T]) Push(item T) {
 	that.Include(item)
 }
 
+// Pop returns first item of collection
 func (that *Collection[T]) Pop() (item T, err error) {
 	if len(that.items) == 0 {
 		return item, ErrNoMatch
@@ -233,18 +245,20 @@ func (that *Collection[T]) Pop() (item T, err error) {
 	return item, nil
 }
 
+// SkipHead allow skip n first items
 func (that *Collection[T]) SkipHead(n int) {
 	if n > len(that.items) {
 		n = len(that.items)
 	}
-	that.items = that.items[:n]
+	that.items = that.items[n:]
 }
 
+// SkipTail allow skip n last items
 func (that *Collection[T]) SkipTail(n int) {
 	if n > len(that.items) {
 		n = len(that.items)
 	}
-	that.items = that.items[n:]
+	that.items = that.items[:n]
 }
 
 var (
