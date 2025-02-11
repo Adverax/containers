@@ -1,4 +1,4 @@
-package index
+package indicies
 
 type Index[T any] interface {
 	Reset()

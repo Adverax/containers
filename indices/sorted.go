@@ -1,4 +1,4 @@
-package index
+package indicies
 
 import (
 	"github.com/adverax/containers/collections"
