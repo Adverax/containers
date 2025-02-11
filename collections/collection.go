@@ -284,6 +284,29 @@ func (that *Collection[T]) SkipTail(n int) {
 	that.items = that.items[:n]
 }
 
+// SetSorted allow to set sorted flag
+func (that *Collection[T]) SetSorted(sorted bool) {
+	if that.sorted == sorted {
+		return
+	}
+	that.sorted = sorted
+	if sorted {
+		sort.Sort(that)
+	}
+}
+
+func (that *Collection[T]) GetSorted() bool {
+	return that.sorted
+}
+
+func (that *Collection[T]) GetUnique() bool {
+	return that.unique
+}
+
+func (that *Collection[T]) GetComparator() Comparator[T] {
+	return that.comparator
+}
+
 var (
 	ErrNoMatch = errors.New("no match")
 )
