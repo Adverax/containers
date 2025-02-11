@@ -14,7 +14,7 @@ type INTEGER interface {
 }
 
 type ORDERED interface {
-	FLOAT | ~string
+	INTEGER | FLOAT | ~string
 }
 
 type Set[T ORDERED] map[T]struct{}

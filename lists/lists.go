@@ -15,7 +15,7 @@ type INTEGER interface {
 }
 
 type ORDERED interface {
-	FLOAT | ~string
+	INTEGER | FLOAT | ~string
 }
 
 type List[T ORDERED] []T
