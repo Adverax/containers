@@ -5,7 +5,7 @@ import (
 )
 
 type Sorted[T any] struct {
-	collections.Collection[T]
+	*collections.Collection[T]
 }
 
 func (that *Sorted[T]) Truncate(
@@ -23,7 +23,12 @@ func (that *Sorted[T]) Truncate(
 }
 
 func NewSorted[T any](comparator collections.Comparator[T]) *Sorted[T] {
+	collection, _ := collections.NewBuilder[T]().
+		WithComparator(comparator).
+		WithSorted(true).
+		Build()
+
 	return &Sorted[T]{
-		Collection: *collections.NewCollection(comparator, false),
+		Collection: collection,
 	}
 }
