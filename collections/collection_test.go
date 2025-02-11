@@ -23,7 +23,13 @@ func (c MyTypeComparator) Greater(a, b *MyType) bool {
 }
 
 func ExampleNewCollection() {
-	collection := NewCollection[*MyType](&MyTypeComparator{})
+	collection, err := NewBuilder[*MyType]().
+		WithComparator(MyTypeComparator{}).
+		WithSorted(true).
+		Build()
+	if err != nil {
+		panic(err)
+	}
 
 	collection.Include(&MyType{1})
 	collection.Include(&MyType{3})

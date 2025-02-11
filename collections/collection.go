@@ -16,16 +16,7 @@ type Collection[T any] struct {
 	items      []T
 	comparator Comparator[T]
 	unique     bool
-}
-
-func NewCollection[T any](
-	comparator Comparator[T],
-	unique bool,
-) *Collection[T] {
-	return &Collection[T]{
-		comparator: comparator,
-		unique:     unique,
-	}
+	sorted     bool
 }
 
 func (that *Collection[T]) Len() int {
@@ -79,12 +70,16 @@ func (that *Collection[T]) Include(item T) bool {
 		return true
 	}
 
+	if !that.sorted {
+		that.items = append(that.items, item)
+		return true
+	}
+
 	i := that.search(item)
 	if i == l {
 		that.items = append(that.items, item)
 		return true
 	}
-
 	if that.unique {
 		if that.comparator.Equal(that.items[i], item) {
 			return false
@@ -124,6 +119,10 @@ func (that *Collection[T]) Exclude(item T) bool {
 
 // Add - join two collections
 func (that *Collection[T]) Add(bs *Collection[T], unique bool) *Collection[T] {
+	if !that.sorted {
+		return nil
+	}
+
 	la := len(that.items)
 	lb := len(bs.items)
 	if la == 0 {
@@ -170,6 +169,10 @@ func (that *Collection[T]) Add(bs *Collection[T], unique bool) *Collection[T] {
 
 // Sub - subtract one collection from another
 func (that *Collection[T]) Sub(bs *Collection[T]) *Collection[T] {
+	if !that.sorted {
+		return nil
+	}
+
 	la := len(that.items)
 	lb := len(bs.items)
 	if la == 0 {
@@ -207,11 +210,16 @@ func (that *Collection[T]) Sub(bs *Collection[T]) *Collection[T] {
 
 // IndexOf - returns founded index of item
 func (that *Collection[T]) IndexOf(item T) int {
-	if len(that.items) == 0 {
+	l := len(that.items)
+	if l == 0 {
 		return -1
 	}
 
 	i := that.search(item)
+	if i == l {
+		return -1
+	}
+
 	if that.comparator.Equal(that.items[i], item) {
 		return i
 	}
@@ -221,7 +229,22 @@ func (that *Collection[T]) IndexOf(item T) int {
 
 func (that *Collection[T]) search(item T) int {
 	l := len(that.items)
-	return sort.Search(l, func(i int) bool { return !that.comparator.Less(that.items[i], item) })
+
+	if that.sorted {
+		return sort.Search(l, func(i int) bool { return !that.comparator.Less(that.items[i], item) })
+	}
+
+	if that.comparator == nil {
+		return l
+	}
+
+	for i, v := range that.items {
+		if that.comparator.Equal(v, item) {
+			return i
+		}
+	}
+
+	return l
 }
 
 func (that *Collection[T]) Items() []T {
